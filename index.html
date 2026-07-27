@@ -97,7 +97,7 @@
       margin-bottom: 15px;
       line-height: 1.6;
       text-align: center;
-      min-height: 100px;
+      min-height: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -260,27 +260,39 @@
 
     // STATE
     let state = { level: 1, mmr: 1000, mistakesOnCurrent: 0, startTime: 0 };
-    let usedQuestionIds = [];
     let isGameStarted = false;
 
+    // РАСШИРЕННАЯ И УСЛОЖНЕННАЯ БАЗА ВОПРОСОВ
     const questionsDatabase = {
       easy: [
         { id: "e1", q: "Кто построил ковчег?", options: ["Ной", "Авраам", "Моисей"], correct: 0 },
         { id: "e2", q: "Сколько дней Бог сотворял мир?", options: ["5", "6", "7"], correct: 1 },
         { id: "e3", q: "Как называлась первая книга Библии?", options: ["Исход", "Бытие", "Левит"], correct: 1 },
-        { id: "e4", q: "Кто победил Голиафа?", options: ["Саул", "Давид", "Соломон"], correct: 1 }
+        { id: "e4", q: "Кто победил Голиафа пращой и камнем?", options: ["Саул", "Давид", "Соломон"], correct: 1 },
+        { id: "e5", q: "Какое море расступилось перед Моисеем?", options: ["Красное", "Мертвое", "Средиземное"], correct: 0 },
+        { id: "e6", q: "В каком городе родился Иисус Христос?", options: ["Назарет", "Иерусалим", "Вифлеем"], correct: 2 },
+        { id: "e7", q: "Кто был сброшен в ров со львами за молитву?", options: ["Даниил", "Иона", "Самсон"], correct: 0 },
+        { id: "e8", q: "Какая птица принесла Ною масличный лист?", options: ["Ворон", "Голубь", "Орел"], correct: 1 }
       ],
       medium: [
         { id: "m1", q: "Сколько апостолов было у Иисуса?", options: ["10", "12", "70"], correct: 1 },
-        { id: "m2", q: "Какое море расступилось перед Моисеем?", options: ["Красное", "Мертвое", "Средиземное"], correct: 0 },
-        { id: "m3", q: "Кто пробыл во чреве кита 3 дня?", options: ["Иона", "Даниил", "Илия"], correct: 0 },
-        { id: "m4", q: "На какой горе Моисей получил скрижали?", options: ["Елеонская", "Синай", "Арарат"], correct: 1 }
+        { id: "m2", q: "Кто пробыл во чреве кита 3 дня и 3 ночи?", options: ["Иона", "Даниил", "Илия"], correct: 0 },
+        { id: "m3", q: "На какой горе Моисей получил Десять Заповедей?", options: ["Елеонская", "Синай", "Арарат"], correct: 1 },
+        { id: "m4", q: "Кто обладал невероятной силой, заключенной в волосах?", options: ["Гедеон", "Самсон", "Саул"], correct: 1 },
+        { id: "m5", q: "Сколько дней Иисус постился в пустыне?", options: ["30", "40", "50"], correct: 1 },
+        { id: "m6", q: "Кого Иисус воскресил на четвёртый день после смерти?", options: ["Лазаря", "Иаира", "Стефана"], correct: 0 },
+        { id: "m7", q: "Кто продал своё первородство за чечевичную похлебку?", options: ["Исав", "Иаков", "Иосиф"], correct: 0 },
+        { id: "m8", q: "На какой горе остановился Ноев ковчег?", options: ["Синай", "Фавор", "Арарат"], correct: 2 }
       ],
       hard: [
-        { id: "h1", q: "Кто заменил Иуду Искариота среди 12-ти?", options: ["Матфий", "Павел", "Варнава"], correct: 0 },
-        { id: "h2", q: "Сколько книг в Ветхом Завете (протест. канон)?", options: ["27", "39", "66"], correct: 1 },
-        { id: "h3", q: "Кто был первым царем Израиля?", options: ["Давид", "Соломон", "Саул"], correct: 2 },
-        { id: "h4", q: "Какой апостол был врачом?", options: ["Матфей", "Лука", "Марк"], correct: 1 }
+        { id: "h1", q: "Кто заменил Иуду Искариота среди 12-ти апостолов?", options: ["Матфий", "Павел", "Варнава"], correct: 0 },
+        { id: "h2", q: "Сколько книг в Ветхом Завете (каноническом)?", options: ["27", "39", "66"], correct: 1 },
+        { id: "h3", q: "Кто был самым первым царем Израиля?", options: ["Давид", "Соломон", "Саул"], correct: 2 },
+        { id: "h4", q: "Какой апостол по профессии был врачом?", options: ["Матфей", "Лука", "Марк"], correct: 1 },
+        { id: "h5", q: "Как называлось место, где Авраам должен был принести в жертву Исаака?", options: ["Гора Мориа", "Голгофа", "Вефиль"], correct: 0 },
+        { id: "h6", q: "Сколько лет израильтяне блуждали по пустыне?", options: ["20", "40", "70"], correct: 1 },
+        { id: "h7", q: "Кто был самым долгоживущим человеком в Библии (969 лет)?", options: ["Мафусал", "Адам", "Ной"], correct: 0 },
+        { id: "h8", q: "Как назывался первый христианский мученик, побитый камнями?", options: ["Иаков", "Стефан", "Филипп"], correct: 1 }
       ]
     };
 
@@ -292,10 +304,31 @@
       { lvl: 150, title: "Патриарх", desc: "Достигните 150 уровня" }
     ];
 
+    // ОЧЕРЕДИ ДЛЯ УМНОГО РАНДОМА (БЕЗ ПОВТОРЕНИЙ)
+    let queues = { easy: [], medium: [], hard: [] };
+
+    // Алгоритм честного перемешивания Фишера-Йейтса
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getNextQuestion(difficulty) {
+      // Если очередь пуста или закончилась — заново перемешиваем весь пул
+      if (!queues[difficulty] || queues[difficulty].length === 0) {
+        queues[difficulty] = shuffleArray(questionsDatabase[difficulty]);
+      }
+      // Достаем следующий вопрос из колоды
+      return queues[difficulty].pop();
+    }
+
     let currentQuestionObj = null;
 
     function loadUserProgress() {
-      // Локальные данные загружаются моментально
       const localData = localStorage.getItem('quiz_progress_' + currentUser.id);
       if (localData) {
         try {
@@ -305,10 +338,8 @@
         } catch(e) {}
       }
 
-      // Если база доступна, пытаемся получить прогресс с таймаутом
       if (database) {
         let dbLoaded = false;
-        
         database.ref('players/' + currentUser.id).once('value')
           .then((snapshot) => {
             dbLoaded = true;
@@ -319,15 +350,9 @@
             }
             startGame();
           })
-          .catch(() => {
-            if (!dbLoaded) startGame();
-          });
+          .catch(() => { if (!dbLoaded) startGame(); });
 
-        // Защитный таймер: если БД задерживается дольше 1.5 сек, старт происходит автономно
-        setTimeout(() => {
-          if (!dbLoaded) startGame();
-        }, 1500);
-
+        setTimeout(() => { if (!dbLoaded) startGame(); }, 1500);
       } else {
         startGame();
       }
@@ -358,24 +383,16 @@
     }
 
     function getDifficultyByLevel(level) {
-      if (level <= 30) return 'easy';
-      if (level <= 80) return 'medium';
+      if (level <= 15) return 'easy';
+      if (level <= 40) return 'medium';
       return 'hard';
     }
 
     function loadQuestion() {
       const diff = getDifficultyByLevel(state.level);
-      const pool = questionsDatabase[diff];
       
-      let availableQuestions = pool.filter(q => !usedQuestionIds.includes(q.id));
-      
-      if (availableQuestions.length === 0) {
-        usedQuestionIds = usedQuestionIds.filter(id => !pool.some(q => q.id === id));
-        availableQuestions = pool;
-      }
-
-      currentQuestionObj = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-      usedQuestionIds.push(currentQuestionObj.id);
+      // Берем вопрос из перемешанной очереди
+      currentQuestionObj = getNextQuestion(diff);
 
       state.mistakesOnCurrent = 0;
       state.startTime = Date.now();
@@ -452,13 +469,12 @@
       box.innerHTML = '<div style="text-align:center; padding: 20px;">Загрузка топа...</div>';
 
       if (!database) {
-        box.innerHTML = '<div style="text-align:center; padding: 20px;">Firebase недоступен. Запустите в онлайне.</div>';
+        box.innerHTML = '<div style="text-align:center; padding: 20px;">Firebase недоступен.</div>';
         return;
       }
 
       let loaded = false;
       
-      // Таймаут для лидерборда, если базам закрыта правилами
       setTimeout(() => {
         if (!loaded) {
           box.innerHTML = '<div style="text-align:center; padding: 20px;">Не удалось загрузить топ.<br><br><span style="font-size:7px; color:#aaa;">Проверьте правила Realtime Database в консоли Firebase (Rules -> read: true)</span></div>';
@@ -528,3 +544,4 @@
   </script>
 </body>
 </html>
+
