@@ -21,176 +21,98 @@
       --wrong-color: #a83232;
     }
 
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
+    * { box-sizing: border-box; user-select: none; }
 
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background-color: var(--bg-color);
       color: var(--text-color);
       font-family: 'Press Start 2P', monospace;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-      font-size: 10px;
+      display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden; font-size: 10px;
     }
 
     .nav-bar {
-      display: flex;
-      background-color: #1a1005;
+      display: flex; background-color: #1a1005;
       border-bottom: 4px solid var(--accent-color);
     }
 
     .nav-btn {
-      flex: 1;
-      padding: 12px 5px;
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-family: 'Press Start 2P', monospace;
-      font-size: 8px;
-      cursor: pointer;
-      text-align: center;
+      flex: 1; padding: 12px 5px; background: none; border: none;
+      color: var(--text-color); font-family: 'Press Start 2P', monospace;
+      font-size: 8px; cursor: pointer; text-align: center;
     }
 
-    .nav-btn.active {
-      background-color: var(--accent-color);
-      color: #000;
-    }
+    .nav-btn.active { background-color: var(--accent-color); color: #000; }
 
     .content-area {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
+      flex: 1; padding: 15px; overflow-y: auto;
+      display: flex; flex-direction: column;
     }
 
-    .tab-content {
-      display: none;
-      height: 100%;
-      flex-direction: column;
-    }
-
-    .tab-content.active {
-      display: flex;
-    }
+    .tab-content { display: none; height: 100%; flex-direction: column; }
+    .tab-content.active { display: flex; }
 
     .stats-card {
       background-color: var(--card-bg);
       border: 4px solid var(--accent-color);
-      padding: 10px;
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-between;
+      padding: 10px; margin-bottom: 15px;
+      display: flex; justify-content: space-between;
       box-shadow: 4px 4px 0 #000;
     }
 
     .question-card {
       background-color: var(--card-bg);
       border: 4px solid #fff;
-      padding: 15px;
-      margin-bottom: 15px;
-      line-height: 1.6;
-      text-align: center;
-      min-height: 110px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 15px; margin-bottom: 15px;
+      line-height: 1.6; text-align: center;
+      min-height: 110px; display: flex;
+      align-items: center; justify-content: center;
       box-shadow: 4px 4px 0 #000;
     }
 
-    .options-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .options-container { display: flex; flex-direction: column; gap: 10px; }
 
     .option-btn {
       background-color: var(--btn-bg);
       color: var(--text-color);
-      border: 3px solid #000;
-      padding: 12px;
+      border: 3px solid #000; padding: 12px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 9px;
-      cursor: pointer;
-      text-align: left;
-      line-height: 1.4;
-      box-shadow: 3px 3px 0 #000;
+      font-size: 9px; cursor: pointer; text-align: left;
+      line-height: 1.4; box-shadow: 3px 3px 0 #000;
     }
 
-    .option-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 #000;
-    }
-
+    .option-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
     .option-btn.correct { background-color: var(--correct-color) !important; }
     .option-btn.wrong { background-color: var(--wrong-color) !important; }
 
-    .leaderboard-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
 
     .leader-item {
       background-color: var(--card-bg);
       border: 2px solid var(--accent-color);
-      padding: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 8px; display: flex;
+      align-items: center; justify-content: space-between;
     }
 
-    .leader-item.top3 {
-      border: 3px solid #ff2200;
-      background-color: #5c3e1e;
-    }
+    .leader-item.top3 { border: 3px solid #ff2200; background-color: #5c3e1e; }
+    .leader-item.me { border: 3px solid #00ffcc; }
 
-    .leader-item.me {
-      border: 3px solid #00ffcc;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .user-info { display: flex; align-items: center; gap: 10px; }
 
     .avatar {
-      width: 24px;
-      height: 24px;
-      background-color: #aaa;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      color: #000;
+      width: 24px; height: 24px; background-color: #aaa;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 8px; color: #000;
     }
 
-    .achievements-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
+    .achievements-grid { display: flex; flex-direction: column; gap: 10px; }
     .achievement-card {
       background-color: var(--card-bg);
-      border: 2px solid #666;
-      padding: 10px;
-      opacity: 0.5;
+      border: 2px solid #666; padding: 10px; opacity: 0.5;
     }
-
-    .achievement-card.unlocked {
-      border-color: var(--accent-color);
-      opacity: 1.0;
-    }
-
+    .achievement-card.unlocked { border-color: var(--accent-color); opacity: 1.0; }
     .ach-title { color: var(--accent-color); margin-bottom: 5px; }
     .ach-desc { font-size: 8px; color: #ccc; }
   </style>
@@ -229,10 +151,7 @@
   <script>
     // TELEGRAM
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-    }
+    if (tg) { tg.ready(); tg.expand(); }
 
     const tgUser = tg?.initDataUnsafe?.user;
     const currentUser = {
@@ -240,10 +159,11 @@
       name: tgUser ? `${tgUser.first_name || 'Игрок'} ${tgUser.username ? '(@' + tgUser.username + ')' : ''}` : "Паломник"
     };
 
-    // FIREBASE
+    // ТВОЯ ЕВРОПЕЙСКАЯ БАЗА FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyCHSzZdY7gC5Xrv_by0oNGSGUqZANwGqig",
       authDomain: "bible-quiz-app-6c6c4.firebaseapp.com",
+      databaseURL: "https://bible-quiz-app-6c6c4-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "bible-quiz-app-6c6c4",
       storageBucket: "bible-quiz-app-6c6c4.firebasestorage.app",
       messagingSenderId: "604500555364",
@@ -255,14 +175,13 @@
       firebase.initializeApp(firebaseConfig);
       database = firebase.database();
     } catch (e) {
-      console.warn("Ошибка инициализации Firebase:", e);
+      console.warn("Ошибка Firebase:", e);
     }
 
     // STATE
     let state = { level: 1, mmr: 1000, mistakesOnCurrent: 0, startTime: 0 };
     let isGameStarted = false;
 
-    // РАСШИРЕННАЯ И УСЛОЖНЕННАЯ БАЗА ВОПРОСОВ
     const questionsDatabase = {
       easy: [
         { id: "e1", q: "Кто построил ковчег?", options: ["Ной", "Авраам", "Моисей"], correct: 0 },
@@ -304,10 +223,8 @@
       { lvl: 150, title: "Патриарх", desc: "Достигните 150 уровня" }
     ];
 
-    // ОЧЕРЕДИ ДЛЯ УМНОГО РАНДОМА (БЕЗ ПОВТОРЕНИЙ)
     let queues = { easy: [], medium: [], hard: [] };
 
-    // Алгоритм честного перемешивания Фишера-Йейтса
     function shuffleArray(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -318,11 +235,9 @@
     }
 
     function getNextQuestion(difficulty) {
-      // Если очередь пуста или закончилась — заново перемешиваем весь пул
       if (!queues[difficulty] || queues[difficulty].length === 0) {
         queues[difficulty] = shuffleArray(questionsDatabase[difficulty]);
       }
-      // Достаем следующий вопрос из колоды
       return queues[difficulty].pop();
     }
 
@@ -352,7 +267,7 @@
           })
           .catch(() => { if (!dbLoaded) startGame(); });
 
-        setTimeout(() => { if (!dbLoaded) startGame(); }, 1500);
+        setTimeout(() => { if (!dbLoaded) startGame(); }, 1200);
       } else {
         startGame();
       }
@@ -371,7 +286,7 @@
           mmr: state.mmr,
           level: state.level,
           updatedAt: Date.now()
-        }).catch(() => {});
+        }).catch((err) => console.log("Ошибка сохранения в БД:", err));
       }
     }
 
@@ -380,6 +295,7 @@
       isGameStarted = true;
       loadQuestion();
       renderAchievements();
+      saveProgressToCloud();
     }
 
     function getDifficultyByLevel(level) {
@@ -390,8 +306,6 @@
 
     function loadQuestion() {
       const diff = getDifficultyByLevel(state.level);
-      
-      // Берем вопрос из перемешанной очереди
       currentQuestionObj = getNextQuestion(diff);
 
       state.mistakesOnCurrent = 0;
@@ -429,10 +343,7 @@
         state.level += 1;
 
         saveProgressToCloud();
-
-        setTimeout(() => {
-          loadQuestion();
-        }, 800);
+        setTimeout(() => { loadQuestion(); }, 800);
 
       } else {
         btnElement.classList.add('wrong');
@@ -473,26 +384,20 @@
         return;
       }
 
-      let loaded = false;
-      
-      setTimeout(() => {
-        if (!loaded) {
-          box.innerHTML = '<div style="text-align:center; padding: 20px;">Не удалось загрузить топ.<br><br><span style="font-size:7px; color:#aaa;">Проверьте правила Realtime Database в консоли Firebase (Rules -> read: true)</span></div>';
-        }
-      }, 2500);
-
       database.ref('players').once('value')
         .then((snapshot) => {
-          loaded = true;
           box.innerHTML = '';
           let players = [];
-          snapshot.forEach((child) => { players.push(child.val()); });
+          
+          if (snapshot.exists()) {
+            snapshot.forEach((child) => { players.push(child.val()); });
+          }
 
           players.sort((a, b) => (b.mmr || 0) - (a.mmr || 0));
           const top20 = players.slice(0, 20);
 
           if (top20.length === 0) {
-            box.innerHTML = '<div style="text-align:center; padding: 20px;">Пока нет игроков в топе.</div>';
+            box.innerHTML = '<div style="text-align:center; padding: 20px;">Пока нет игроков в топе.<br><br>Ответьте на один вопрос, чтобы записаться в базу!</div>';
             return;
           }
 
@@ -518,9 +423,8 @@
             box.appendChild(div);
           });
         })
-        .catch(() => {
-          loaded = true;
-          box.innerHTML = '<div style="text-align:center; padding: 20px;"> Ошибка доступа к БД.<br>Проверьте Rules в Firebase.</div>';
+        .catch((err) => {
+          box.innerHTML = `<div style="text-align:center; padding: 20px;"> Ошибка доступа к БД.<br><br><span style="font-size:7px; color:#ff8888;">${err.message}</span></div>`;
         });
     }
 
@@ -544,4 +448,3 @@
   </script>
 </body>
 </html>
-
