@@ -240,11 +240,10 @@
       name: tgUser ? `${tgUser.first_name || 'Игрок'} ${tgUser.username ? '(@' + tgUser.username + ')' : ''}` : "Паломник"
     };
 
-    // FIREBASE CONFIG С ТВОИМИ КЛЮЧАМИ
+    // FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyCHSzZdY7gC5Xrv_by0oNGSGUqZANwGqig",
       authDomain: "bible-quiz-app-6c6c4.firebaseapp.com",
-      databaseURL: "https://bible-quiz-app-6c6c4-default-rtdb.firebaseio.com",
       projectId: "bible-quiz-app-6c6c4",
       storageBucket: "bible-quiz-app-6c6c4.firebasestorage.app",
       messagingSenderId: "604500555364",
@@ -256,12 +255,13 @@
       firebase.initializeApp(firebaseConfig);
       database = firebase.database();
     } catch (e) {
-      console.warn("БД работает автономно", e);
+      console.warn("Ошибка инициализации Firebase:", e);
     }
 
     // STATE
     let state = { level: 1, mmr: 1000, mistakesOnCurrent: 0, startTime: 0 };
     let usedQuestionIds = [];
+    let isGameStarted = false;
 
     const questionsDatabase = {
       easy: [
@@ -295,27 +295,42 @@
     let currentQuestionObj = null;
 
     function loadUserProgress() {
-      if (!database) {
-        const localData = localStorage.getItem('quiz_progress_' + currentUser.id);
-        if (localData) {
+      // Локальные данные загружаются моментально
+      const localData = localStorage.getItem('quiz_progress_' + currentUser.id);
+      if (localData) {
+        try {
           const parsed = JSON.parse(localData);
           state.level = parsed.level || 1;
           state.mmr = parsed.mmr || 1000;
-        }
-        startGame();
-        return;
+        } catch(e) {}
       }
 
-      database.ref('players/' + currentUser.id).once('value')
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            state.level = data.level || 1;
-            state.mmr = data.mmr || 1000;
-          }
-          startGame();
-        })
-        .catch(() => startGame());
+      // Если база доступна, пытаемся получить прогресс с таймаутом
+      if (database) {
+        let dbLoaded = false;
+        
+        database.ref('players/' + currentUser.id).once('value')
+          .then((snapshot) => {
+            dbLoaded = true;
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              state.level = data.level || state.level;
+              state.mmr = data.mmr || state.mmr;
+            }
+            startGame();
+          })
+          .catch(() => {
+            if (!dbLoaded) startGame();
+          });
+
+        // Защитный таймер: если БД задерживается дольше 1.5 сек, старт происходит автономно
+        setTimeout(() => {
+          if (!dbLoaded) startGame();
+        }, 1500);
+
+      } else {
+        startGame();
+      }
     }
 
     function saveProgressToCloud() {
@@ -331,11 +346,13 @@
           mmr: state.mmr,
           level: state.level,
           updatedAt: Date.now()
-        });
+        }).catch(() => {});
       }
     }
 
     function startGame() {
+      if (isGameStarted) return;
+      isGameStarted = true;
       loadQuestion();
       renderAchievements();
     }
@@ -435,12 +452,22 @@
       box.innerHTML = '<div style="text-align:center; padding: 20px;">Загрузка топа...</div>';
 
       if (!database) {
-        box.innerHTML = '<div style="text-align:center; padding: 20px;">Подключите Firebase для работы общего топа.</div>';
+        box.innerHTML = '<div style="text-align:center; padding: 20px;">Firebase недоступен. Запустите в онлайне.</div>';
         return;
       }
 
+      let loaded = false;
+      
+      // Таймаут для лидерборда, если базам закрыта правилами
+      setTimeout(() => {
+        if (!loaded) {
+          box.innerHTML = '<div style="text-align:center; padding: 20px;">Не удалось загрузить топ.<br><br><span style="font-size:7px; color:#aaa;">Проверьте правила Realtime Database в консоли Firebase (Rules -> read: true)</span></div>';
+        }
+      }, 2500);
+
       database.ref('players').once('value')
         .then((snapshot) => {
+          loaded = true;
           box.innerHTML = '';
           let players = [];
           snapshot.forEach((child) => { players.push(child.val()); });
@@ -476,7 +503,8 @@
           });
         })
         .catch(() => {
-          box.innerHTML = '<div style="text-align:center; padding: 20px;">Ошибка загрузки списка.</div>';
+          loaded = true;
+          box.innerHTML = '<div style="text-align:center; padding: 20px;"> Ошибка доступа к БД.<br>Проверьте Rules в Firebase.</div>';
         });
     }
 
