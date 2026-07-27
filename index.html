@@ -4,10 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Библейская Викторина</title>
-  <!-- Пиксельный шрифт из Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase SDK (v10.8.0) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <style>
     :root {
@@ -16,7 +20,6 @@
       --accent-color: #e2b041;
       --text-color: #f7e8d0;
       --btn-bg: #8c5d35;
-      --btn-hover: #a67142;
       --correct-color: #488b49;
       --wrong-color: #a83232;
     }
@@ -34,6 +37,456 @@
       font-family: 'Press Start 2P', monospace;
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      font-size: 10px;
+    }
+
+    .nav-bar {
+      display: flex;
+      background-color: #1a1005;
+      border-bottom: 4px solid var(--accent-color);
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 12px 5px;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .nav-btn.active {
+      background-color: var(--accent-color);
+      color: #000;
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-content {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    .stats-card {
+      background-color: var(--card-bg);
+      border: 4px solid var(--accent-color);
+      padding: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .question-card {
+      background-color: var(--card-bg);
+      border: 4px solid #fff;
+      padding: 15px;
+      margin-bottom: 15px;
+      line-height: 1.6;
+      text-align: center;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      border: 3px solid #000;
+      padding: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.4;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .option-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .option-btn.correct { background-color: var(--correct-color) !important; }
+    .option-btn.wrong { background-color: var(--wrong-color) !important; }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .leader-item {
+      background-color: var(--card-bg);
+      border: 2px solid var(--accent-color);
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .leader-item.top3 {
+      border: 3px solid #ff2200;
+      background-color: #5c3e1e;
+    }
+
+    .leader-item.me {
+      border: 3px solid #00ffcc;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      background-color: #aaa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #000;
+    }
+
+    .achievements-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .achievement-card {
+      background-color: var(--card-bg);
+      border: 2px solid #666;
+      padding: 10px;
+      opacity: 0.5;
+    }
+
+    .achievement-card.unlocked {
+      border-color: var(--accent-color);
+      opacity: 1.0;
+    }
+
+    .ach-title { color: var(--accent-color); margin-bottom: 5px; }
+    .ach-desc { font-size: 8px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="switchTab('game', event)">🎮 Игра</button>
+    <button class="nav-btn" onclick="switchTab('leaderboard', event)">🏆 Топ 20</button>
+    <button class="nav-btn" onclick="switchTab('achievements', event)">🏅 Награды</button>
+  </div>
+
+  <div class="content-area">
+    <!-- ИГРА -->
+    <div id="tab-game" class="tab-content active">
+      <div class="stats-card">
+        <div>Уровень: <span id="player-level" style="color: var(--accent-color);">1</span></div>
+        <div>MMR: <span id="player-mmr" style="color: #00ffcc;">1000</span></div>
+      </div>
+
+      <div class="question-card" id="question-text">Загрузка данных...</div>
+      <div class="options-container" id="options-box"></div>
+    </div>
+
+    <!-- ТОП 20 -->
+    <div id="tab-leaderboard" class="tab-content">
+      <div class="leaderboard-list" id="leaderboard-box"></div>
+    </div>
+
+    <!-- ДОСТИЖЕНИЯ -->
+    <div id="tab-achievements" class="tab-content">
+      <div class="achievements-grid" id="achievements-box"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP ---
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    const tgUser = tg?.initDataUnsafe?.user;
+    const currentUser = {
+      id: tgUser?.id || "local_dev_user",
+      name: tgUser ? `${tgUser.first_name} ${tgUser.username ? '(@' + tgUser.username + ')' : ''}` : "Паломник"
+    };
+
+    // --- 2. ИНИЦИАЛИЗАЦИЯ FIREBASE ---
+    // ⚠️ Замени эти значения на свои из консоли Firebase!
+    const firebaseConfig = {
+      apiKey: "ТВОЙ_API_KEY",
+      authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
+      databaseURL: "https://ТВОЙ_PROJECT-default-rtdb.firebaseio.com",
+      projectId: "ТВОЙ_PROJECT",
+      storageBucket: "ТВОЙ_PROJECT.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- 3. СОСТОЯНИЕ ИГРЫ ---
+    let state = {
+      level: 1,
+      mmr: 1000,
+      mistakesOnCurrent: 0,
+      startTime: 0
+    };
+
+    let usedQuestionIds = [];
+
+    const questionsDatabase = {
+      easy: [
+        { id: "e1", q: "Кто построил ковчег?", options: ["Ной", "Авраам", "Моисей"], correct: 0 },
+        { id: "e2", q: "Сколько дней Бог сотворял мир?", options: ["5", "6", "7"], correct: 1 },
+        { id: "e3", q: "Как называлась первая книга Библии?", options: ["Исход", "Бытие", "Левит"], correct: 1 },
+        { id: "e4", q: "Кто победил Голиафа?", options: ["Саул", "Давид", "Соломон"], correct: 1 }
+      ],
+      medium: [
+        { id: "m1", q: "Сколько апостолов было у Иисуса?", options: ["10", "12", "70"], correct: 1 },
+        { id: "m2", q: "Какое море расступилось перед Моисеем?", options: ["Красное", "Мертвое", "Средиземное"], correct: 0 },
+        { id: "m3", q: "Кто пробыл во чреве кита 3 дня?", options: ["Иона", "Даниил", "Илия"], correct: 0 },
+        { id: "m4", q: "На какой горе Моисей получил скрижали?", options: ["Елеонская", "Синай", "Арарат"], correct: 1 }
+      ],
+      hard: [
+        { id: "h1", q: "Кто заменил Иуду Искариота среди 12-ти?", options: ["Матфий", "Павел", "Варнава"], correct: 0 },
+        { id: "h2", q: "Сколько книг в Ветхом Завете (протест. канон)?", options: ["27", "39", "66"], correct: 1 },
+        { id: "h3", q: "Кто был первым царем Израиля?", options: ["Давид", "Соломон", "Саул"], correct: 2 },
+        { id: "h4", q: "Какой апостол был врачом?", options: ["Матфей", "Лука", "Марк"], correct: 1 }
+      ]
+    };
+
+    const achievements = [
+      { lvl: 10, title: "Ученик", desc: "Достигните 10 уровня" },
+      { lvl: 25, title: "Чтец", desc: "Достигните 25 уровня" },
+      { lvl: 50, title: "Знаток Писания", desc: "Достигните 50 уровня" },
+      { lvl: 100, title: "Богослов", desc: "Достигните 100 уровня" },
+      { lvl: 150, title: "Патриарх", desc: "Достигните 150 уровня" }
+    ];
+
+    let currentQuestionObj = null;
+
+    // --- 4. ЗАГРУЗКА И СОХРАНЕНИЕ В ОБЛАКО ---
+
+    // Загрузка сохраненного прогресса при запуске
+    function loadUserProgress() {
+      const userRef = database.ref('players/' + currentUser.id);
+      
+      userRef.once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          state.level = data.level || 1;
+          state.mmr = data.mmr || 1000;
+        }
+        // После загрузки данных запускаем первый вопрос
+        loadQuestion();
+        renderAchievements();
+      }).catch((err) => {
+        console.error("Ошибка загрузки:", err);
+        loadQuestion();
+      });
+    }
+
+    // Сохранение прогресса в Firebase
+    function saveProgressToCloud() {
+      database.ref('players/' + currentUser.id).set({
+        id: currentUser.id,
+        name: currentUser.name,
+        mmr: state.mmr,
+        level: state.level,
+        updatedAt: Date.now()
+      });
+    }
+
+    // --- 5. ЛОГИКА ИГРЫ ---
+
+    function getDifficultyByLevel(level) {
+      if (level <= 30) return 'easy';
+      if (level <= 80) return 'medium';
+      return 'hard';
+    }
+
+    function loadQuestion() {
+      const diff = getDifficultyByLevel(state.level);
+      const pool = questionsDatabase[diff];
+      
+      let availableQuestions = pool.filter(q => !usedQuestionIds.includes(q.id));
+      
+      if (availableQuestions.length === 0) {
+        usedQuestionIds = usedQuestionIds.filter(id => !pool.some(q => q.id === id));
+        availableQuestions = pool;
+      }
+
+      currentQuestionObj = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+      usedQuestionIds.push(currentQuestionObj.id);
+
+      state.mistakesOnCurrent = 0;
+      state.startTime = Date.now();
+
+      document.getElementById('question-text').innerText = currentQuestionObj.q;
+      
+      const optionsBox = document.getElementById('options-box');
+      optionsBox.innerHTML = '';
+
+      currentQuestionObj.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = `${idx + 1}. ${opt}`;
+        btn.onclick = () => handleAnswer(idx, btn);
+        optionsBox.appendChild(btn);
+      });
+
+      updateUI();
+    }
+
+    function handleAnswer(selectedIndex, btnElement) {
+      if (selectedIndex === currentQuestionObj.correct) {
+        btnElement.classList.add('correct');
+        
+        const timeSpent = (Date.now() - state.startTime) / 1000;
+        let speedBonus = Math.max(0, Math.floor(20 - timeSpent));
+        let penalty = state.mistakesOnCurrent * 15;
+        
+        let earnedMMR = Math.max(5, 25 + speedBonus - penalty);
+        state.mmr += earnedMMR;
+        state.level += 1;
+
+        saveProgressToCloud();
+
+        setTimeout(() => {
+          loadQuestion();
+        }, 800);
+
+      } else {
+        btnElement.classList.add('wrong');
+        btnElement.disabled = true;
+        
+        state.mistakesOnCurrent += 1;
+        state.mmr = Math.max(0, state.mmr - 10);
+        
+        saveProgressToCloud();
+        updateUI();
+      }
+    }
+
+    function updateUI() {
+      document.getElementById('player-level').innerText = state.level;
+      document.getElementById('player-mmr').innerText = state.mmr;
+    }
+
+    // --- 6. ВКЛАДКИ И ЛИДЕРБОРД ---
+
+    function switchTab(tabName, evt) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      if (evt) evt.target.classList.add('active');
+
+      if (tabName === 'leaderboard') {
+        renderLeaderboard();
+      } else if (tabName === 'achievements') {
+        renderAchievements();
+      }
+    }
+
+    function renderLeaderboard() {
+      const box = document.getElementById('leaderboard-box');
+      box.innerHTML = '<div style="text-align:center; padding: 20px;">Загрузка топа...</div>';
+
+      database.ref('players').orderByChild('mmr').limitToLast(20).once('value', (snapshot) => {
+        box.innerHTML = '';
+        let players = [];
+
+        snapshot.forEach((child) => {
+          players.push(child.val());
+        });
+
+        players.reverse(); // Сортируем от большего к меньшему
+
+        if (players.length === 0) {
+          box.innerHTML = '<div style="text-align:center; padding: 20px;">Пока нет игроков в топе.</div>';
+          return;
+        }
+
+        players.forEach((item, index) => {
+          const isMe = String(item.id) === String(currentUser.id);
+          const div = document.createElement('div');
+          let classes = 'leader-item';
+          if (index < 3) classes += ' top3';
+          if (isMe) classes += ' me';
+
+          div.className = classes;
+          div.innerHTML = `
+            <div class="user-info">
+              <span>#${index + 1}</span>
+              <div class="avatar">${item.name ? item.name[0] : '?'}</div>
+              <div>
+                <div>${item.name}</div>
+                <div style="font-size:7px; color:#aaa;">Ур. ${item.level}</div>
+              </div>
+            </div>
+            <div style="color: #00ffcc;">${item.mmr} MMR</div>
+          `;
+          box.appendChild(div);
+        });
+      });
+    }
+
+    function renderAchievements() {
+      const box = document.getElementById('achievements-box');
+      box.innerHTML = '';
+
+      achievements.forEach(ach => {
+        const isUnlocked = state.level >= ach.lvl;
+        const div = document.createElement('div');
+        div.className = `achievement-card ${isUnlocked ? 'unlocked' : ''}`;
+        div.innerHTML = `
+          <div class="ach-title">${isUnlocked ? '🏆' : '🔒'} ${ach.title}</div>
+          <div class="ach-desc">${ach.desc}</div>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    // Запуск игры с загрузкой данных из облака
+    loadUserProgress();
+  </script>
+</body>
+</html>
       height: 100vh;
       overflow: hidden;
       font-size: 10px;
